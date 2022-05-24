@@ -2,7 +2,7 @@
   <el-container>
     <el-header>
       <el-row>
-        <el-col :span="12">
+        <el-col :span="7">
           <div class="grid-content bg-purple"></div>
         </el-col>
         <el-col :span="8">
@@ -14,44 +14,62 @@
         <el-col :span="3">
           <el-button type="primary" @click="search">搜索商品</el-button>
         </el-col>
+        <el-col :span="3">
+          <span>账户余额：{{ this.balance }}</span></el-col
+        >
       </el-row>
     </el-header>
     <el-main>
       <transition :name="fade">
         <div>
-          <el-card
-            v-for="good in goods"
-            :key="good.id"
-            class="goods"
-            @click="buy(good)"
-          >
-            <el-row>
-              <el-col :span="9"
-                ><el-avatar shape="square" :size="200" src="good.img_url"
-              /></el-col>
-              <el-col :span="15">
-                <el-card class="goodmessage">
-                  <el-row>
-                    <el-col
-                      ><span>名称：{{ good.title }}</span></el-col
-                    >
-                  </el-row>
-                  <el-row>
-                    <el-col
-                      ><span>价格：{{ good.price }}</span></el-col
-                    >
-                  </el-row>
-                  <el-row>
-                    <el-col
-                      ><span>简介：{{ good.content }}</span></el-col
-                    >
-                  </el-row>
-                </el-card>
-              </el-col>
-            </el-row>
-          </el-card>
+          <el-row>
+            <el-col
+              :span="12"
+              v-for="good in goods.slice((page - 1) * 4, page * 4)"
+              :key="good.id"
+              class="row"
+            >
+              <el-card @click="buy(good)" class="good">
+                <el-row>
+                  <el-col :span="9"
+                    ><el-avatar shape="square" :size="200" src="good.img_url"
+                  /></el-col>
+                  <el-col :span="15">
+                    <el-card class="goodmessage">
+                      <el-row>
+                        <el-col
+                          ><span>名称：{{ good.title }}</span></el-col
+                        >
+                      </el-row>
+                      <el-row>
+                        <el-col
+                          ><span>价格：{{ good.price }}</span></el-col
+                        >
+                      </el-row>
+                      <el-row>
+                        <el-col
+                          ><span>简介：{{ good.content }}</span></el-col
+                        >
+                      </el-row>
+                    </el-card>
+                  </el-col>
+                </el-row>
+              </el-card>
+            </el-col>
+            <div></div>
+          </el-row>
         </div>
       </transition>
+      <div class="demo-pagination-block">
+        <el-pagination
+          :background="background"
+          layout="prev, pager, next, jumper"
+          :default-page-size="4"
+          :total="this.number"
+          hide-on-single-page="true"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </el-main>
   </el-container>
 </template>
@@ -66,6 +84,9 @@ export default {
   data() {
     return {
       goods: [],
+      number: 0,
+      balance: 0,
+      page: 1,
     };
   },
   methods: {
@@ -76,12 +97,18 @@ export default {
       }).then((res) => {
         console.log(res.data.goods);
         this.goods = res.data.goods;
+        this.number = this.goods.length;
+        console.log(this.number);
       });
     },
 
     buy(good) {
       console.log(good);
       this.$router.push({ path: "/good", query: good });
+    },
+    async handleCurrentChange(val) {
+      this.page = val;
+      console.log(`当前页: ${val}`);
     },
   },
   created() {
@@ -115,14 +142,25 @@ export default {
   height: 710px;
 }
 
-.goods {
+.good {
   height: 240px;
-  width: 600px;
+  width: 700px;
   margin: auto;
-  margin-top: 10px;
 }
-
+.goods {
+  display: flex;
+  justify-content: center;
+}
 .goodmessage {
   height: 200px;
+}
+.row {
+  margin-top: 30px;
+}
+
+.demo-pagination-block {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
 }
 </style>
